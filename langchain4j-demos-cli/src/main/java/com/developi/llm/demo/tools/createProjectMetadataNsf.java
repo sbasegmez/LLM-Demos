@@ -1,7 +1,6 @@
 package com.developi.llm.demo.tools;
 
 import com.developi.jnx.utils.AbstractStandaloneJnxApp;
-import com.fasterxml.jackson.core.JsonFactory;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.data.Database;
@@ -20,7 +19,6 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 
@@ -29,7 +27,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * This code creates an active copy of OpenNTF project metadata.
@@ -43,15 +40,11 @@ import java.util.logging.Logger;
  */
 public class createProjectMetadataNsf extends AbstractStandaloneJnxApp {
 
-    private static final Logger logger = Logger.getLogger(createProjectMetadataNsf.class.getName());
-
+    DocumentJsonbSerializer serializer;
+    long largestRtFieldSize = 0;
     private String sourceDbPath;
     private String targetDbPath;
     private String targetJsonFilePath;
-
-    DocumentJsonbSerializer serializer;
-
-    long largestRtFieldSize = 0;
 
     public static void main(String[] args) {
         new createProjectMetadataNsf().run(args);
@@ -92,14 +85,13 @@ public class createProjectMetadataNsf extends AbstractStandaloneJnxApp {
                                                  .includeMetadata(false)
                                                  .booleanItemNames(List.of("released", "releaseStatus"))
                                                  .booleanTrueValues(List.of("y", "Y", "yes", "Yes", "true", "True"))
+                                                 .excludeItems(List.of("$MIMETrack", "MIME_Version"))
                                                  .build();
 
     }
 
     @Override
     protected void _run(DominoClient dominoClient) {
-        JsonFactory jsonFactory = new JsonFactory();
-
         Database sourceDb;
         Database targetDb;
         File targetJsonFile = new File(targetJsonFilePath);
@@ -127,12 +119,12 @@ public class createProjectMetadataNsf extends AbstractStandaloneJnxApp {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStartArray("projects");
 
-            writeProjects(sourceDb, targetDb, jsonGenerator);
+            importDocuments(TYPE.PROJECT, sourceDb, targetDb, jsonGenerator);
 
             jsonGenerator.writeEnd();
 
             jsonGenerator.writeStartArray("releases");
-            writeReleases(sourceDb, targetDb, jsonGenerator);
+            importDocuments(TYPE.RELEASE, sourceDb, targetDb, jsonGenerator);
             jsonGenerator.writeEnd();
 
             jsonGenerator.writeEnd();
@@ -145,38 +137,32 @@ public class createProjectMetadataNsf extends AbstractStandaloneJnxApp {
 
     }
 
-    private void writeReleases(Database sourceDb, Database targetDb, JsonGenerator jsonGenerator) {
-        sourceDb.openCollection("ReleasesByDate")
-                .ifPresentOrElse(collection -> { // collection is not null
-                    collection.forEachDocument(0, Integer.MAX_VALUE, (releaseDoc, loop) -> {
-                        if (!releaseDoc.hasItem("$Conflict")) {
-                            try {
-                                Document metadataDoc = createMetaDataDoc(sourceDb, targetDb, releaseDoc);
-                                serializer.serialize(metadataDoc, jsonGenerator, null);
-                            } catch (DominoException e) {
-                                String releaseName = releaseDoc.getAsText("ProjectName", ' ') + "." + releaseDoc.getAsText("Version", ' ');
-                                throw new RuntimeException("Unable to create metadata doc with release (" + releaseName + ")!", e);
-                            }
-                        }
-                    });
-                }, () -> { // collection is null
-                    throw new RuntimeException("ProjectList collection not found!");
-                });
+    private String getViewByType(TYPE type) {
+        return switch (type) {
+            case PROJECT -> "(ProjectList)";
+            case RELEASE -> "ReleasesByDate";
+        };
     }
 
-    private void writeProjects(Database sourceDb, Database targetDb, JsonGenerator jsonGenerator) {
-        sourceDb.openCollection("(ProjectList)")
-                .ifPresentOrElse(collection -> { // collection is not null
-                    collection.forEachDocument(56, 1, (projectDoc, loop) -> {
-                        if (!projectDoc.hasItem("$Conflict") && StringUtils.isNotEmpty(projectDoc.getAsText("ProjectName", ' '))) {
-                            try {
-                                System.out.println(loop.getIndex() + ": " + projectDoc.getAsText("ProjectName", ' '));
+    private void importDocuments(TYPE type, Database sourceDb, Database targetDb, JsonGenerator jsonGenerator) {
+        String viewName = getViewByType(type);
 
-                                Document metadataDoc = createMetaDataDoc(sourceDb, targetDb, projectDoc);
+        sourceDb.openCollection(viewName)
+                .ifPresentOrElse(collection -> { // collection is not null
+                    collection.forEachDocument(0, Integer.MAX_VALUE, (doc, loop) -> {
+                        if (!doc.hasItem("$Conflict") && StringUtils.isNotEmpty(doc.getAsText("ProjectName", ' '))) {
+                            String def = loop.getIndex() + ": " + doc.getAsText("ProjectName", ' ') + (type == TYPE.RELEASE ? ("." + doc.getAsText(
+                                    "ReleaseNumber",
+                                    ' '
+                            )) : "");
+
+                            System.out.println(def);
+
+                            try {
+                                Document metadataDoc = createMetaDataDoc(sourceDb, targetDb, doc);
                                 serializer.serialize(metadataDoc, jsonGenerator, null);
                             } catch (DominoException e) {
-                                String projectName = projectDoc.getAsText("ProjectName", ' ');
-                                throw new RuntimeException("Unable to create metadata doc with project (" + projectName + ")!", e);
+                                throw new RuntimeException("Unable to create metadata doc with project (" + def + ")!", e);
                             }
                         }
                     });
@@ -186,17 +172,14 @@ public class createProjectMetadataNsf extends AbstractStandaloneJnxApp {
     }
 
     private Document createMetaDataDoc(Database sourceDb, Database targetDb, Document doc) {
-        Document metadataDoc = targetDb.openCollection("(byId)")
-                                       .flatMap(collection -> collection.query()
-                                                                        .selectByKey(doc.getUNID(), true)
-                                                                        .firstEntry())
-                                       .flatMap(entry -> entry.isDocument() ? entry.openDocument() : Optional.empty())
-                                       .orElse(targetDb.createDocument());
 
-        if (!metadataDoc.isNew()) {
-            metadataDoc.allItems()
-                       .forEach(item -> metadataDoc.removeItem(item.getName()));
-        }
+        // Remove existing ones
+        targetDb.openCollection("(byId)")
+                .ifPresent(collection -> collection.query()
+                                                   .selectByKey(doc.getUNID(), true)
+                                                   .forEachDocument(0, Integer.MAX_VALUE, (existingDoc, loop) -> existingDoc.delete(true)));
+
+        Document metadataDoc = targetDb.createDocument();
 
         String form = doc.getAsText("Form", ' ');
         boolean isProject = "project".equalsIgnoreCase(form);
@@ -253,7 +236,6 @@ public class createProjectMetadataNsf extends AbstractStandaloneJnxApp {
 
         sourceDoc.getFirstItem(sourceField)
                  .ifPresent(item -> {
-                     System.out.println(sourceDoc.getAsText("ProjectName", ' ') + " checking...");
 
                      switch (item.getType()) {
                          case TYPE_COMPOSITE:
@@ -324,11 +306,11 @@ public class createProjectMetadataNsf extends AbstractStandaloneJnxApp {
                                  targetDoc.replaceItemValue(targetFieldPrefix + "Text", EnumSet.noneOf(Item.ItemFlag.class), mimeContentText);
 
                                  dc.getMimeWriter()
-                                   .writeMime(targetDoc, targetFieldPrefix, mime,
-                                           EnumSet.of(
-                                                   MimeWriter.WriteMimeDataType.BODY,
-                                                   MimeWriter.WriteMimeDataType.NO_DELETE_ATTACHMENTS
-                                           )
+                                   .writeMime(
+                                           targetDoc,
+                                           targetFieldPrefix,
+                                           mime,
+                                           EnumSet.of(MimeWriter.WriteMimeDataType.BODY, MimeWriter.WriteMimeDataType.NO_DELETE_ATTACHMENTS)
                                    );
 
                              } catch (IOException | MessagingException e) {
@@ -337,55 +319,12 @@ public class createProjectMetadataNsf extends AbstractStandaloneJnxApp {
 
                              break;
                          default:
-//                             targetDoc.replaceItemValue(targetFieldPrefix, item.getAsText(' '));
                      }
                  });
 
     }
 
-    private Optional<String> getRtMimeValue(Document doc, String fieldName) {
-
-        DominoClient dc = doc.getParentDatabase()
-                             .getParentDominoClient();
-
-        return doc.getFirstItem(fieldName)
-                  .map(item -> {
-                      switch (item.getType()) {
-                          case TYPE_COMPOSITE:
-                              // Used DominoJNX implementation. To be improved.
-                              String htmlContent = dc.getRichTextHtmlConverter()
-                                                     .renderItem(doc, fieldName)
-                                                     .option(HtmlConvertOption.XMLCompatibleHTML, "1")
-                                                     .convert()
-                                                     .getHtml();
-
-                              if (htmlContent.length() > this.largestRtFieldSize) {
-                                  this.largestRtFieldSize = htmlContent.length();
-                              }
-
-                              return htmlContent;
-
-                          case TYPE_MIME_PART:
-                              // Used DominoJNX implementation. To be improved.
-                              final MimeMessage mime = dc.getMimeReader()
-                                                         .readMIME(doc, fieldName, EnumSet.of(MimeReader.ReadMimeDataType.MIMEHEADERS));
-
-                              try (InputStream is = mime.getInputStream()) {
-                                  String mimeContent = IOUtils.toString(is, StandardCharsets.UTF_8);
-                                  if (mimeContent.length() > this.largestRtFieldSize) {
-                                      this.largestRtFieldSize = mimeContent.length();
-                                  }
-
-                                  return mimeContent;
-                              } catch (IOException | MessagingException e) {
-                                  throw new RuntimeException(e);
-                              }
-
-                          default:
-                              return item.getAsText(' ');
-                      }
-
-                  });
-
+    enum TYPE {
+        PROJECT, RELEASE
     }
 }
