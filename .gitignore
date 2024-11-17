@@ -41,3 +41,8 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Java ###
+javacore.**.txt
+jitdump.**.dmp
+Snap.**.trc
