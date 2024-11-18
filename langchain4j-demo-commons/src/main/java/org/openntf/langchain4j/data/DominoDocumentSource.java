@@ -40,7 +40,7 @@ public class DominoDocumentSource implements DocumentSource {
         buildMetadata(document, metadataFields);
     }
 
-    public Builder newBuilder() {
+    public static Builder newBuilder() {
         return new Builder();
     }
 
@@ -99,16 +99,16 @@ public class DominoDocumentSource implements DocumentSource {
 
     public static class Builder {
 
-        String server;
-        String databasePath;
-        String documentUniqueId;
-        String fieldName;
-        Integer noteId;
-        List<String> metadataFields;
+        private String server;
+        private String databasePath;
+        private String documentUniqueId;
+        private String fieldName;
+        private Integer noteId;
+        private List<String> metadataFields;
 
-        DominoClient dominoClient;
-        Database database;
-        Document dominoDocument;
+        private DominoClient dominoClient;
+        private Database database;
+        private Document dominoDocument;
 
         public Builder() {
             this.metadataFields = new ArrayList<>();
