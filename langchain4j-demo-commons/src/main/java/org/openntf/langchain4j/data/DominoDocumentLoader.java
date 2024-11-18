@@ -2,18 +2,19 @@ package org.openntf.langchain4j.data;
 
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.Database;
-import dev.langchain4j.data.document.Document;
-import dev.langchain4j.data.document.DocumentLoader;
-import dev.langchain4j.data.document.DocumentParser;
-import dev.langchain4j.data.document.DocumentSource;
+import dev.langchain4j.data.document.*;
 import dev.langchain4j.data.document.parser.TextDocumentParser;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static dev.langchain4j.internal.ValidationUtils.ensureNotNull;
 
 public class DominoDocumentLoader {
+
+    private static final Logger logger = Logger.getLogger(DominoDocumentLoader.class.getName());
 
     private String fieldName;
     private String documentUniqueId;
@@ -88,7 +89,7 @@ public class DominoDocumentLoader {
     }
 
     // Single document loader
-    public Document loadDocument() {
+    public Optional<Document> loadDocument() {
         DominoDocumentSource.Builder builder = DominoDocumentSource.newBuilder()
                                                                    .fieldName(fieldName)
                                                                    .addMetaFields(metaFields);
@@ -107,7 +108,7 @@ public class DominoDocumentLoader {
             }
         }
 
-        return DocumentLoader.load(builder.build(), documentParser);
+        return parseSource(builder.build(), documentParser);
     }
 
     public List<Document> loadDocuments() {
@@ -122,8 +123,7 @@ public class DominoDocumentLoader {
                                                             .noteId(noteId)
                                                             .build();
 
-                Document document = DocumentLoader.load(source, documentParser);
-                documents.add(document);
+                parseSource(source, documentParser).ifPresent(documents::add);
             });
 
             return documents;
@@ -139,7 +139,7 @@ public class DominoDocumentLoader {
                                                                                    .addMetaFields(metaFields)
                                                                                    .dominoDocument(document)
                                                                                    .build();
-                                       documents.add(DocumentLoader.load(source, documentParser));
+                                       parseSource(source, documentParser).ifPresent(documents::add);
                                    });
 
                 }
@@ -151,4 +151,15 @@ public class DominoDocumentLoader {
         // We can't return documents, then we must have an argument issue.
         throw new IllegalArgumentException("Either noteIds or collectionEntries must be provided!");
     }
+
+    private static Optional<Document> parseSource(DocumentSource source, DocumentParser documentParser) {
+        try {
+            return Optional.of(DocumentLoader.load(source, documentParser));
+        } catch(BlankDocumentException e) {
+            logger.log(Level.WARNING, "Blank document found, skipping...");
+        }
+
+        return Optional.empty();
+    }
+
 }
