@@ -11,6 +11,7 @@ import dev.langchain4j.data.document.DocumentSource;
 import dev.langchain4j.data.document.Metadata;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -85,8 +86,15 @@ public class DominoDocumentSource implements DocumentSource {
                     return rtl.extractText();
                 case TYPE_MIME_PART: // MIME
                     MimeData mimeData = doc.get("Details", MimeData.class, null);
+
                     if (null != mimeData) {
-                        return mimeData.getPlainText();
+                        String textData = mimeData.getPlainText();
+                        if(StringUtils.isNotEmpty(textData)) {
+                            return textData;
+                        }
+
+                        textData = Jsoup.parseBodyFragment(mimeData.getHtml()).text();
+                        return textData;
                     }
                     break;
                 default:
@@ -94,7 +102,7 @@ public class DominoDocumentSource implements DocumentSource {
             }
         }
 
-        throw new IllegalArgumentException("No data fount for extraction! (" + doc.getUNID() + " - " + fieldName + ")");
+        return "";
     }
 
     public static class Builder {
@@ -104,7 +112,7 @@ public class DominoDocumentSource implements DocumentSource {
         private String documentUniqueId;
         private String fieldName;
         private Integer noteId;
-        private List<String> metadataFields;
+        private final List<String> metadataFields;
 
         private DominoClient dominoClient;
         private Database database;
