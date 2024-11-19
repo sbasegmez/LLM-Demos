@@ -10,7 +10,7 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
-import dev.langchain4j.store.embedding.milvus.MilvusEmbeddingStore;
+import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 import org.openntf.langchain4j.data.DominoDocumentLoader;
 
 import java.util.List;
@@ -44,11 +44,9 @@ public class exportProjectMetadata extends AbstractStandaloneJnxApp {
                                                             .build();
 
         // Prepare embedding store
-        EmbeddingStore<TextSegment> embeddingStore = MilvusEmbeddingStore.builder()
-                                                                         .collectionName("projects_mxbai")
-                                                                         .host("skaro.developi.info")
-                                                                         .databaseName("pmt")
-                                                                         .dimension(embeddingModel.dimension())
+        EmbeddingStore<TextSegment> embeddingStore = ChromaEmbeddingStore.builder()
+                                                                         .baseUrl("http://skaro.developi.info:8000")
+                                                                         .collectionName("projects_mxbai_nochunk")
                                                                          .build();
 
         // Clear existing embeddings
@@ -58,7 +56,7 @@ public class exportProjectMetadata extends AbstractStandaloneJnxApp {
         EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
                                                                 .embeddingModel(embeddingModel)
                                                                 .embeddingStore(embeddingStore)
-                                                                .documentSplitter(DocumentSplitters.recursive(512, 64))
+//                                                                .documentSplitter(DocumentSplitters.recursive(512, 64))
                                                                 .build();
 
         database.openCollection("projects")
@@ -73,7 +71,7 @@ public class exportProjectMetadata extends AbstractStandaloneJnxApp {
                                         .ifPresent(document -> {
                                             ingestor.ingest(document);
 
-                                            if(counter.incrementAndGet() % 100 == 0) {
+                                            if (counter.incrementAndGet() % 100 == 0) {
                                                 System.out.println("Ingested " + counter.intValue() + " documents");
                                             }
                                         });

@@ -30,7 +30,7 @@
         </dependency>
         <dependency>
             <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-milvus</artifactId>
+            <artifactId>langchain4j-chroma</artifactId>
             <version>${version-langchain4j}</version>
         </dependency>
     </dependencies>
