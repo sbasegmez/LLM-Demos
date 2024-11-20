@@ -7,6 +7,7 @@ import com.hcl.domino.data.DominoCollection;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModelName;
 import dev.langchain4j.store.embedding.EmbeddingStore;
@@ -31,24 +32,25 @@ public class exportProjectMetadata extends AbstractStandaloneJnxApp {
     }
 
     @Override
+    @SuppressWarnings("unused")
     protected void _run(DominoClient dominoClient) {
         // Prepare an embedding model
-//        EmbeddingModel embeddingModel = OllamaEmbeddingModel.builder()
-//                                                            .baseUrl("http://localhost:11434")
-//                                                            .modelName("mxbai-embed-large:latest")
-//                                                            .maxRetries(3)
-//                                                            .logRequests(true)
-//                                                            .logResponses(true)
-//                                                            .build();
-//
-//        submit(dominoClient, embeddingModel, "projects_mxbai_nochunk");
+        EmbeddingModel embeddingModelOllama = OllamaEmbeddingModel.builder()
+                                                            .baseUrl("http://localhost:11434")
+                                                            .modelName("mxbai-embed-large:latest")
+                                                            .maxRetries(3)
+                                                            .logRequests(true)
+                                                            .logResponses(true)
+                                                            .build();
 
-        EmbeddingModel embeddingModel = OpenAiEmbeddingModel.builder()
+        EmbeddingModel embeddingModelOpenAi = OpenAiEmbeddingModel.builder()
                                                             .modelName(OpenAiEmbeddingModelName.TEXT_EMBEDDING_3_LARGE)
                                                             .apiKey(System.getProperty("OPENAI_API_KEY"))
                                                             .build();
 
-        submit(dominoClient, embeddingModel, "projects_openai_nochunk");
+//        Disabled tp prevent accidental run...
+//        submit(dominoClient, embeddingModelOllama, "projects_mxbai_nochunk");
+//        submit(dominoClient, embeddingModelOpenAi, "projects_openai_nochunk");
 
     }
 
