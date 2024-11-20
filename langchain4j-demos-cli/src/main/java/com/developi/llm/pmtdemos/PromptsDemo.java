@@ -16,16 +16,6 @@ public class PromptsDemo extends AbstractStandaloneJnxApp {
         new PromptsDemo().run(args);
     }
 
-    interface DemoAiService {
-
-        @SystemMessage("""
-                The user will give a sentence from a user comment. Provide a sentiment for the sentence.
-                """)
-        String ask(String sentence);
-
-    }
-
-
     @Override
     protected void _init() {
     }
@@ -50,6 +40,15 @@ public class PromptsDemo extends AbstractStandaloneJnxApp {
 
         sentences.forEach(sentence -> System.out.println("\nSentence: " + sentence + "\n>> " + demoAiService.ask(
                 sentence)));
+
+    }
+
+    interface DemoAiService {
+
+        @SystemMessage("""
+                The user will give a sentence from a user comment. Provide a sentiment for the sentence.
+                """)
+        String ask(String sentence);
 
     }
 }

@@ -7,7 +7,8 @@ import com.hcl.domino.data.DominoCollection;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModelName;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
@@ -31,22 +32,35 @@ public class exportProjectMetadata extends AbstractStandaloneJnxApp {
 
     @Override
     protected void _run(DominoClient dominoClient) {
+        // Prepare an embedding model
+//        EmbeddingModel embeddingModel = OllamaEmbeddingModel.builder()
+//                                                            .baseUrl("http://localhost:11434")
+//                                                            .modelName("mxbai-embed-large:latest")
+//                                                            .maxRetries(3)
+//                                                            .logRequests(true)
+//                                                            .logResponses(true)
+//                                                            .build();
+//
+//        submit(dominoClient, embeddingModel, "projects_mxbai_nochunk");
+
+        EmbeddingModel embeddingModel = OpenAiEmbeddingModel.builder()
+                                                            .modelName(OpenAiEmbeddingModelName.TEXT_EMBEDDING_3_LARGE)
+                                                            .apiKey(System.getProperty("OPENAI_API_KEY"))
+                                                            .build();
+
+        submit(dominoClient, embeddingModel, "projects_openai_nochunk");
+
+    }
+
+    public void submit(DominoClient dominoClient, EmbeddingModel embeddingModel, String collectionName) {
         AtomicInteger counter = new AtomicInteger(0);
         Database database = dominoClient.openDatabase(dbPath);
 
-        // Prepare an embedding model
-        EmbeddingModel embeddingModel = OllamaEmbeddingModel.builder()
-                                                            .baseUrl("http://localhost:11434")
-                                                            .modelName("mxbai-embed-large:latest")
-                                                            .maxRetries(3)
-                                                            .logRequests(true)
-                                                            .logResponses(true)
-                                                            .build();
 
         // Prepare embedding store
         EmbeddingStore<TextSegment> embeddingStore = ChromaEmbeddingStore.builder()
                                                                          .baseUrl("http://skaro.developi.info:8000")
-                                                                         .collectionName("projects_mxbai_nochunk")
+                                                                         .collectionName(collectionName)
                                                                          .build();
 
         // Clear existing embeddings
@@ -56,7 +70,7 @@ public class exportProjectMetadata extends AbstractStandaloneJnxApp {
         EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
                                                                 .embeddingModel(embeddingModel)
                                                                 .embeddingStore(embeddingStore)
-//                                                                .documentSplitter(DocumentSplitters.recursive(512, 64))
+                                                                .documentSplitter(DocumentSplitters.recursive(4000, 128))
                                                                 .build();
 
         database.openCollection("projects")
@@ -76,6 +90,6 @@ public class exportProjectMetadata extends AbstractStandaloneJnxApp {
                                             }
                                         });
                 });
-
     }
+
 }
