@@ -1,4 +1,4 @@
-package com.developi.llm.demo.pmtdemos;
+package com.developi.llm.demo.tools;
 
 import com.developi.jnx.utils.AbstractStandaloneJnxApp;
 import com.hcl.domino.DominoClient;

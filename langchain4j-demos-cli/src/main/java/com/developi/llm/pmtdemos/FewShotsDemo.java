@@ -47,7 +47,7 @@ public class FewShotsDemo extends AbstractStandaloneJnxApp {
     protected void _run(DominoClient dominoClient) {
         FewshotsAiService service = AiServices.builder(FewshotsAiService.class)
                                               .chatLanguageModel(OpenAiChatModel.builder()
-                                                                                .modelName(OpenAiChatModelName.GPT_3_5_TURBO_0125)
+                                                                                .modelName(OpenAiChatModelName.GPT_4_O_MINI)
                                                                                 .apiKey(System.getProperty(
                                                                                         "OPENAI_API_KEY"))
                                                                                 .temperature(0.1)
