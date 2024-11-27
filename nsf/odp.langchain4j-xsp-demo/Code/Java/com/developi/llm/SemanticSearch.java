@@ -61,16 +61,19 @@ public class SemanticSearch {
 		List<NoteIdWithScore> scores = ftResult.getMatchesWithScore();
 
 		scores.forEach(
-				noteIdWithScore -> db	.getDocumentById(noteIdWithScore.getNoteId())
+				noteIdWithScore -> {
+					System.out.println(noteIdWithScore.getNoteId() + " : " + noteIdWithScore.getScore());
+					db	.getDocumentById(noteIdWithScore.getNoteId())
 										.ifPresent(doc -> {
 											if ("project".equalsIgnoreCase(doc.getAsText("Form", ' '))) {
 												JsonJavaObject jsonValue = new JsonJavaObject();
-												jsonValue.put("name", doc.getAsText("ProjectName", ' '));
+												jsonValue.put("name", doc.getAsText("name", ' '));
 												jsonValue.put("unid", doc.getUNID());
 												jsonValue.put("score", noteIdWithScore.getScore());
 												resultArray.add(jsonValue);
 											}
-										}));
+										});
+				});
 
 		return resultArray;
 	}
@@ -83,7 +86,7 @@ public class SemanticSearch {
 		// Prepare an embedding model
 		EmbeddingModel embeddingModel = OllamaEmbeddingModel.builder()
 															.baseUrl(XspUtils.getXspProperty("OLLAMA_URI",
-																	"http://deepthought:11434"))
+																	"http://skaro.developi.info:11434"))
 															.modelName(XspUtils.getXspProperty("OLLAMA_MODEL",
 																	"mxbai-embed-large:latest"))
 															.maxRetries(3)
