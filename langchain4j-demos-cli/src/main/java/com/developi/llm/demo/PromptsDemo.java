@@ -1,7 +1,6 @@
-package com.developi.llm.pmtdemos;
+package com.developi.llm.demo;
 
-import com.developi.jnx.utils.AbstractStandaloneJnxApp;
-import com.hcl.domino.DominoClient;
+import com.developi.jnx.utils.Utils;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModelName;
 import dev.langchain4j.service.AiServices;
@@ -10,23 +9,16 @@ import dev.langchain4j.service.SystemMessage;
 import java.util.Arrays;
 import java.util.List;
 
-public class PromptsDemo extends AbstractStandaloneJnxApp {
+public class PromptsDemo {
 
     public static void main(String[] args) {
-        new PromptsDemo().run(args);
-    }
+        // Import env file
+        Utils.initDotenv();
 
-    @Override
-    protected void _init() {
-    }
-
-    @Override
-    protected void _run(DominoClient dominoClient) {
         DemoAiService demoAiService = AiServices.builder(DemoAiService.class)
                                                 .chatLanguageModel(OpenAiChatModel.builder()
-                                                                                  .modelName(OpenAiChatModelName.GPT_3_5_TURBO_0125)
-                                                                                  .apiKey(System.getProperty(
-                                                                                          "OPENAI_API_KEY"))
+                                                                                  .modelName(OpenAiChatModelName.GPT_4_O_MINI)
+                                                                                  .apiKey(System.getProperty("OPENAI_API_KEY"))
                                                                                   .temperature(0.1)
                                                                                   .build())
                                                 .build();
@@ -38,8 +30,10 @@ public class PromptsDemo extends AbstractStandaloneJnxApp {
                 "Best product in the hall of shame!"
         );
 
-        sentences.forEach(sentence -> System.out.println("\nSentence: " + sentence + "\n>> " + demoAiService.ask(
-                sentence)));
+        sentences.forEach(sentence -> {
+            System.out.println("\nSentence: " + sentence);
+            System.out.println("> " + demoAiService.ask(sentence));
+        });
 
     }
 

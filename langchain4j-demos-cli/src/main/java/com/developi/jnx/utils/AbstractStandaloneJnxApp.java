@@ -3,7 +3,6 @@ package com.developi.jnx.utils;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoProcess;
-import io.github.cdimascio.dotenv.Dotenv;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,7 +24,7 @@ public abstract class AbstractStandaloneJnxApp {
         // Although the documentation suggests a single string argument, we use an array.
         // The second parameter would be the notes.ini file path, but we don't need it, I guess.
         String[] initArgs = new String[]{
-                System.getProperty("Notes_ExecDirectory")
+                System.getenv("Notes_ExecDirectory")
         };
 
         try {
@@ -53,7 +52,7 @@ public abstract class AbstractStandaloneJnxApp {
 
     private void init() {
         // Initialise dotenv
-        initDotenv();
+        Utils.initDotenv();
 
         try {
             // Initialize the app
@@ -63,19 +62,6 @@ public abstract class AbstractStandaloneJnxApp {
         }
     }
 
-    private void initDotenv() {
-        // This is first time. It will load the .env file.
-        Dotenv dotenv = Dotenv.configure()
-                              .directory(System.getProperty("user.home"))
-                              .filename(".env")
-                              .ignoreIfMalformed()
-                              .ignoreIfMissing()
-                              .load();
-
-        // But we don't want to use dotenv any more. So we will just dump everything to system properties.
-        dotenv.entries()
-              .forEach(e -> System.setProperty(e.getKey(), e.getValue()));
-    }
 
     public String[] getArgs() {
         return args == null ? new String[0] : args;
