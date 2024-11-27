@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view
+	xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom">
+
+	<!-- Sidebar content -->
+	<xp:div styleClass="sidebar-content">
+		<div class="nav flex-column">
+			<xp:div styleClass="list-group">
+				<xp:this.attrs>
+					<xp:attr
+						name="data-nav-type"
+						value="collapsible">
+					</xp:attr>
+				</xp:this.attrs>
+				
+				<xc:layout_sidebar_menuitem
+					title="Home Page"
+					text="Home"
+					value="/index.xsp"
+					icon="fa-home"/>
+					
+				<xc:layout_sidebar_menuitem
+					title="Smart Forms"
+					text="Smart Form Demo"
+					value="/smartform_start.xsp"
+					icon="fa-wpforms"/>
+					
+			</xp:div>
+		</div>
+	</xp:div>
+</xp:view>

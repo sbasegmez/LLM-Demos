@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom"
+	xmlns:xe="http://www.ibm.com/xsp/coreex">
+
+	<xp:text escape="true" id="computedField2" tagName="h1"
+		value="Few Shots Training...">
+	</xp:text>
+
+	<hr />
+
+	<xp:div styleClass="row my-3">
+		<xp:div styleClass="col-sm-12">
+			<xp:div styleClass="form-inline">
+				<xp:label value="Give me a comment:" id="label1"
+					for="comment1">
+				</xp:label>
+				<xp:inputTextarea id="comment1"
+					styleClass="commentBox w-50 mx-4" value="#{viewScope.commentText}">
+					<xp:eventHandler event="onkeypress" submit="false">
+						<xp:this.script><![CDATA[
+						if(thisEvent.keyCode && thisEvent.keyCode==13) {
+							thisEvent.preventDefault();
+							sendComment();
+						}
+						
+						return false;
+						]]></xp:this.script>
+					</xp:eventHandler>
+				</xp:inputTextarea>
+				<xp:button styleClass="submitButton btn btn-primary"
+					id="submitBtn" value="Submit" onclick="sendComment()"
+					disableTheme="true">
+					<i class="fa fa-share" />
+				</xp:button>
+			</xp:div>
+		</xp:div>
+	</xp:div>
+
+	<xp:div id="checkResults" styleClass="checkResults row my-2 h5 text-success">
+	</xp:div>
+
+	<xp:br />
+	<xe:jsonRpcService id="commentService"
+		pathInfo="commentService" serviceName="commentService" state="true">
+		<xe:this.methods>
+			<xe:remoteMethod name="sendComment"
+				script="prompts.sendComment(comment)">
+				<xe:this.arguments>
+					<xe:remoteMethodArg name="comment"
+						type="string">
+					</xe:remoteMethodArg>
+				</xe:this.arguments>
+			</xe:remoteMethod>
+		</xe:this.methods>
+	</xe:jsonRpcService>
+</xp:view>
