@@ -11,9 +11,9 @@ This repository supports my sessions on large language models and their integrat
 
 ### Prerequisites
 
--   **Project Metadata Database**: Some of the code requires a project metadata database, which is publicly available as the [OpenNTF project](https://www.openntf.org/main.nsf/project.xsp?r=project/OpenNTF Projects Dataset).
--   **Langchain4j-Domino Integration**: The project utilizes langchain4j-domino, which will be made publicly available in the near future.
--   **LLM Management Tool**: The ingestion code leverages the [Ollama](https://ollama.com/) LLM management tool, preferably installed locally.
+-   **Project Metadata Database**: Some of the code requires a project metadata database, which is publicly available as the [OpenNTF project](https://www.openntf.org/main.nsf/project.xsp?r=project/OpenNTF%20Projects%20Dataset).
+-   **Langchain4j-Domino Integration**: The project utilizes langchain4j-domino, which will be made publicly available in the near future. Experimental version is [here](https://github.com/sbasegmez/langchain4j-domino).
+-   **LLM Model Container**: The ingestion code leverages the [Ollama](https://ollama.com/) LLM management tool, preferably installed locally.
 -   **Vector Database**: The ingestion target is a [Chroma](https://www.trychroma.com/) vector database, preferably installed locally.
 -   **OpenAI API**: The AiService demos require access to the OpenAI API, along with a valid API key.
     -   Copy the .env.example file to your user directory, rename it to .env, and add your OpenAI API key.
@@ -47,7 +47,7 @@ To configure the demos:
 
 2.   **Deploy to Domino Server**: Place the NSF database on a Domino server and sign it.
 
-3.   **Prepare Metadata Dataset**: Download the [OpenNTF Projects Dataset](https://www.openntf.org/main.nsf/project.xsp?r=project/OpenNTF Projects Dataset), deploy it to the same server, sign it, and create a full-text index.
+3.   **Prepare Metadata Dataset**: Download the [OpenNTF Projects Dataset](https://www.openntf.org/main.nsf/project.xsp?r=project/OpenNTF%20Projects%20Dataset), deploy it to the same server, sign it, and create a full-text index.
 
 4.   **Set Up Server Properties**: Open the xsp.properties file in your server’s data directory and define the following variables:
 
