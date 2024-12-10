@@ -11,7 +11,7 @@ This repository supports my sessions on large language models and their integrat
 
 ### Prerequisites
 
--   **Project Metadata Database**: Some of the code requires a project metadata database, which is publicly available as the [OpenNTF project](https://www.openntf.org/main.nsf/project.xsp?r=project/OpenNTF%20Projects%20Dataset).
+-   **Project Metadata Database**: Some of the code requires a project metadata database, which is publicly available as an [OpenNTF project](https://www.openntf.org/main.nsf/project.xsp?r=project/OpenNTF%20Projects%20Dataset).
 -   **Langchain4j-Domino Integration**: The project utilizes langchain4j-domino, which will be made publicly available in the near future. Experimental version is [here](https://github.com/sbasegmez/langchain4j-domino).
 -   **LLM Model Container**: The ingestion code leverages the [Ollama](https://ollama.com/) LLM management tool, preferably installed locally.
 -   **Vector Database**: The ingestion target is a [Chroma](https://www.trychroma.com/) vector database, preferably installed locally.
