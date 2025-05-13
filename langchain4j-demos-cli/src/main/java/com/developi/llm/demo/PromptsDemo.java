@@ -5,7 +5,6 @@ import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModelName;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,18 +15,18 @@ public class PromptsDemo {
         Utils.initDotenv();
 
         DemoAiService demoAiService = AiServices.builder(DemoAiService.class)
-                                                .chatLanguageModel(OpenAiChatModel.builder()
-                                                                                  .modelName(OpenAiChatModelName.GPT_4_O_MINI)
-                                                                                  .apiKey(System.getProperty("OPENAI_API_KEY"))
-                                                                                  .temperature(0.1)
-                                                                                  .build())
+                                                .chatModel(OpenAiChatModel.builder()
+                                                                          .modelName(OpenAiChatModelName.GPT_4_O_MINI)
+                                                                          .apiKey(System.getProperty("OPENAI_API_KEY"))
+                                                                          .temperature(0.1)
+                                                                          .build())
                                                 .build();
 
         List<String> sentences = Arrays.asList(
-                "I love this product!",
-                "This product is terrible!",
-                "I am not sure about this product.",
-                "Best product in the hall of shame!"
+            "I love this product!",
+            "This product is terrible!",
+            "I am not sure about this product.",
+            "Best product in the hall of shame!"
         );
 
         sentences.forEach(sentence -> {
@@ -40,8 +39,8 @@ public class PromptsDemo {
     interface DemoAiService {
 
         @SystemMessage("""
-                The user will give a sentence from a user comment. Provide a sentiment for the sentence.
-                """)
+            The user will give a sentence from a user comment. Provide a sentiment for the sentence.
+            """)
         String ask(String sentence);
 
     }
