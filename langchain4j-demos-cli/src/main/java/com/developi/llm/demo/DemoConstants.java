@@ -24,4 +24,7 @@ public class DemoConstants {
     // Embedded model to be used in OLLAMA
     public static final String OLLAMA_EMB_MODELNAME = "mxbai-embed-large:latest";
 
+    // Embedding model - Snowflake
+    public static final String OLLAMA_SNOWFLAKE_EMB_MODELNAME = "snowflake-arctic-embed2:latest";
+
 }
