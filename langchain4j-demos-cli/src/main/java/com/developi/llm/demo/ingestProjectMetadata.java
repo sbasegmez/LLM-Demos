@@ -3,7 +3,7 @@ package com.developi.llm.demo;
 import com.developi.jnx.utils.AbstractStandaloneJnxApp;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
-import com.hcl.domino.data.DominoCollection;
+import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
@@ -12,11 +12,14 @@ import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModelName;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
-import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
-import org.openntf.langchain4j.data.DominoDocumentLoader;
-
+import dev.langchain4j.store.embedding.IngestionResult;
+import dev.langchain4j.store.embedding.milvus.MilvusEmbeddingStore;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Set;
+import org.openntf.langchain4j.data.DominoDocumentLoader;
+import org.openntf.langchain4j.data.MetadataDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ingestProjectMetadata extends AbstractStandaloneJnxApp {
 
@@ -39,6 +42,7 @@ public class ingestProjectMetadata extends AbstractStandaloneJnxApp {
      * Chroma vector database instance URI
      */
     private static final String CHROMA_URI = "http://skaro.developi.info:8000";
+    private static final Logger log = LoggerFactory.getLogger(ingestProjectMetadata.class);
 
     public static void main(String[] args) {
         new ingestProjectMetadata().run(args);
@@ -68,17 +72,19 @@ public class ingestProjectMetadata extends AbstractStandaloneJnxApp {
 //        Disabled tp prevent accidental run...
 //        submit(dominoClient, embeddingModelOllama, "projects_mxbai_nochunk");
 //        submit(dominoClient, embeddingModelOpenAi, "projects_openai_nochunk");
-
+        submit(dominoClient, embeddingModelOllama, "projects_mxbai_chunk");
     }
 
     public void submit(DominoClient dominoClient, EmbeddingModel embeddingModel, String collectionName) {
-        AtomicInteger counter = new AtomicInteger(0);
         Database database = dominoClient.openDatabase(PMT_METADATA_PATH);
 
         // Prepare embedding store
-        EmbeddingStore<TextSegment> embeddingStore = ChromaEmbeddingStore.builder()
-                                                                         .baseUrl(CHROMA_URI)
+        EmbeddingStore<TextSegment> embeddingStore = MilvusEmbeddingStore.builder()
+                                                                         .host("skaro.developi.info")
+                                                                         .port(19530)
+                                                                         .databaseName("pmt")
                                                                          .collectionName(collectionName)
+                                                                         .dimension(embeddingModel.dimension())
                                                                          .build();
 
         // Clear existing embeddings
@@ -91,22 +97,33 @@ public class ingestProjectMetadata extends AbstractStandaloneJnxApp {
                                                                 .documentSplitter(DocumentSplitters.recursive(4000, 128))
                                                                 .build();
 
-        database.openCollection("projects")
-                .map(DominoCollection::query)
-                .orElseThrow()
-                .forEachDocument(0, Integer.MAX_VALUE, (doc, loop) ->
-                        DominoDocumentLoader.newLoader()
-                                            .fieldName("detailsText")
-                                            .dominoDocument(doc)
-                                            .addMetaFields(List.of("name", "overview", "chefs", "sourceUrl", "category"))
-                                            .loadDocument()
-                                            .ifPresent(document -> {
-                                                ingestor.ingest(document);
+        Set<Integer> projectNoteIds = database.openCollection("projects")
+                                              .orElseThrow()
+                                              .getAllIds(true, false);
 
-                                                if (counter.incrementAndGet() % 100 == 0) {
-                                                    System.out.println("Ingested " + counter.intValue() + " documents");
-                                                }
-                                            }));
+        var metadataDef = MetadataDefinition.builder(MetadataDefinition.DEFAULT)
+                                            .addString("name")
+                                            .addString("overview")
+                                            .addString("chefs")
+                                            .addString("sourceUrl")
+                                            .addString("category")
+                                            .build();
+
+        List<Document> docs = DominoDocumentLoader.create(metadataDef)
+                                                  .database(database)
+                                                  .fieldName("name")
+                                                  .fieldName("details")
+                                                  .noteIds(projectNoteIds)
+                                                  .loadDocuments();
+
+        System.out.println("Ingesting set of " + docs.size() + " documents");
+
+        IngestionResult result = ingestor.ingest(docs.stream()
+                                                     .filter(doc -> doc.text().length()>256)
+                                                     .toList());
+
+        System.out.println("All ingested" + (result.tokenUsage() == null ? "" : (" : " + result.tokenUsage() + " tokens used!")));
+
     }
 
 }
