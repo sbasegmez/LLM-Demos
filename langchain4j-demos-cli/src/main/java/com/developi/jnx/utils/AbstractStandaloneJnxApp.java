@@ -4,6 +4,8 @@ import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoProcess;
 
+import com.hcl.domino.commons.util.StringUtil;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,6 +32,19 @@ public abstract class AbstractStandaloneJnxApp {
         try {
             DominoProcess.get()
                          .initializeProcess(initArgs);
+
+            // prevent ID password prompt
+            final String idFilePath = System.getenv("Notes_IDPath");
+            final String idPassword = System.getenv("Notes_IDPassword");
+
+            if (!StringUtil.isEmpty(idPassword)) {
+                DominoProcess.get().initializeThread();
+                try {
+                    DominoProcess.get().switchToId(StringUtil.isEmpty(idFilePath) ? null : Paths.get(idFilePath), idPassword, true);
+                } finally {
+                    DominoProcess.get().terminateThread();
+                }
+            }
 
             try (DominoProcess.DominoThreadContext ignored = DominoProcess.get()
                                                                           .initializeThread();
