@@ -58,8 +58,8 @@ public class ingestManifestos extends AbstractStandaloneJnxApp {
 
         // Prepare embedding store
         EmbeddingStore<TextSegment> embeddingStore = MilvusEmbeddingStore.builder()
-                                                                         .host("skaro.developi.info")
-                                                                         .port(19530)
+                                                                         .host(DemoConstants.MILVUS_HOST)
+                                                                         .port(DemoConstants.MILVUS_PORT)
                                                                          .databaseName("default")
                                                                          .collectionName(collectionName)
                                                                          .dimension(embeddingModel.dimension())
@@ -72,7 +72,7 @@ public class ingestManifestos extends AbstractStandaloneJnxApp {
         EmbeddingStoreIngestor ingestor = EmbeddingStoreIngestor.builder()
                                                                 .embeddingModel(embeddingModel)
                                                                 .embeddingStore(embeddingStore)
-                                                                .documentSplitter(DocumentSplitters.recursive(4000, 128))
+                                                                .documentSplitter(DocumentSplitters.recursive(8196, 256))
                                                                 .build();
 
         Set<Integer> manifestoDocIds = database.openCollection("Manifestos")
