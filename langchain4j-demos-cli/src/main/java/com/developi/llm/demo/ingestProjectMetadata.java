@@ -23,25 +23,6 @@ import org.slf4j.LoggerFactory;
 
 public class ingestProjectMetadata extends AbstractStandaloneJnxApp {
 
-    /**
-     * PMT Metadata database location in Server!!dbFilePath format
-     */
-    private final static String PMT_METADATA_PATH = "maggie/developi!!demos/pmt_metadata.nsf";
-
-    /**
-     * OLLAMA instance URI. e.g. http://<hostname>:11434
-     */
-    private static final String OLLAMA_URI = "http://localhost:11434";
-
-    /**
-     * Embedded model to be used in OLLAMA
-     */
-    private static final String OLLAMA_EMB_MODELNAME = "mxbai-embed-large:latest";
-
-    /**
-     * Chroma vector database instance URI
-     */
-    private static final String CHROMA_URI = "http://skaro.developi.info:8000";
     private static final Logger log = LoggerFactory.getLogger(ingestProjectMetadata.class);
 
     public static void main(String[] args) {
@@ -57,8 +38,8 @@ public class ingestProjectMetadata extends AbstractStandaloneJnxApp {
     protected void _run(DominoClient dominoClient) {
         // Prepare an embedding model
         EmbeddingModel embeddingModelOllama = OllamaEmbeddingModel.builder()
-                                                                  .baseUrl(OLLAMA_URI)
-                                                                  .modelName(OLLAMA_EMB_MODELNAME)
+                                                                  .baseUrl(DemoConstants.OLLAMA_URI)
+                                                                  .modelName(DemoConstants.OLLAMA_EMB_MODELNAME)
                                                                   .maxRetries(3)
                                                                   .logRequests(true)
                                                                   .logResponses(true)
@@ -76,12 +57,12 @@ public class ingestProjectMetadata extends AbstractStandaloneJnxApp {
     }
 
     public void submit(DominoClient dominoClient, EmbeddingModel embeddingModel, String collectionName) {
-        Database database = dominoClient.openDatabase(PMT_METADATA_PATH);
+        Database database = dominoClient.openDatabase(DemoConstants.PMT_METADATA_PATH);
 
         // Prepare embedding store
         EmbeddingStore<TextSegment> embeddingStore = MilvusEmbeddingStore.builder()
-                                                                         .host("skaro.developi.info")
-                                                                         .port(19530)
+                                                                         .host(DemoConstants.MILVUS_HOST)
+                                                                         .port(DemoConstants.MILVUS_PORT)
                                                                          .databaseName("pmt")
                                                                          .collectionName(collectionName)
                                                                          .dimension(embeddingModel.dimension())

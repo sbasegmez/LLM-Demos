@@ -22,21 +22,6 @@ import org.openntf.langchain4j.data.MetadataDefinition;
 
 public class ingestManifestos extends AbstractStandaloneJnxApp {
 
-    /**
-     * Demo database location in Server!!dbFilePath format
-     */
-    private final static String DEMO_DB_PATH = "maggie/developi!!openntf/DemoLangchain4j.nsf";
-
-    /**
-     * OLLAMA instance URI. e.g. http://<hostname>:11434
-     */
-    private static final String OLLAMA_URI = "http://localhost:11434";
-
-    /**
-     * Embedded model to be used in OLLAMA
-     */
-    private static final String OLLAMA_EMB_MODELNAME = "mxbai-embed-large:latest";
-
     public static void main(String[] args) {
         new ingestManifestos().run(args);
     }
@@ -50,8 +35,8 @@ public class ingestManifestos extends AbstractStandaloneJnxApp {
     protected void _run(DominoClient dominoClient) {
         // Prepare an embedding model
         EmbeddingModel embeddingModelOllama = OllamaEmbeddingModel.builder()
-                                                                  .baseUrl(OLLAMA_URI)
-                                                                  .modelName(OLLAMA_EMB_MODELNAME)
+                                                                  .baseUrl(DemoConstants.OLLAMA_URI)
+                                                                  .modelName(DemoConstants.OLLAMA_EMB_MODELNAME)
                                                                   .maxRetries(3)
                                                                   .logRequests(true)
                                                                   .logResponses(true)
@@ -69,7 +54,7 @@ public class ingestManifestos extends AbstractStandaloneJnxApp {
     }
 
     public void submit(DominoClient dominoClient, EmbeddingModel embeddingModel, String collectionName) {
-        Database database = dominoClient.openDatabase(DEMO_DB_PATH);
+        Database database = dominoClient.openDatabase(DemoConstants.DEMO_DB_PATH);
 
         // Prepare embedding store
         EmbeddingStore<TextSegment> embeddingStore = MilvusEmbeddingStore.builder()
