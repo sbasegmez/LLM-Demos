@@ -17,10 +17,10 @@ import java.util.Set;
 import org.openntf.langchain4j.data.DominoDocumentLoader;
 import org.openntf.langchain4j.data.MetadataDefinition;
 
-public class ingestProjectMetadata extends AbstractStandaloneJnxApp {
+public class IngestProjectMetadata extends AbstractStandaloneJnxApp {
 
     public static void main(String[] args) {
-        new ingestProjectMetadata().run(args);
+        new IngestProjectMetadata().run(args);
     }
 
     public static EmbeddingModel getEmbeddingModel() {

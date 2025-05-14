@@ -4,43 +4,43 @@ import com.developi.jnx.utils.AbstractStandaloneJnxApp;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
 import dev.langchain4j.data.document.Document;
-import dev.langchain4j.data.document.parser.apache.pdfbox.ApachePdfBoxDocumentParser;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModelName;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
-import dev.langchain4j.store.embedding.IngestionResult;
-import dev.langchain4j.store.embedding.milvus.MilvusEmbeddingStore;
+import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.openntf.langchain4j.data.DominoDocumentLoader;
 import org.openntf.langchain4j.data.MetadataDefinition;
 
-public class ingestManifestos extends AbstractStandaloneJnxApp {
+public class IngestNotesHelp extends AbstractStandaloneJnxApp {
 
     public static void main(String[] args) {
-        new ingestManifestos().run(args);
+        new IngestNotesHelp().run(args);
     }
 
-    public static EmbeddingModel getEmbeddingModel() {
-        return OllamaEmbeddingModel.builder()
-                                   .baseUrl(System.getProperty("OLLAMA_URI"))
-                                   .modelName(System.getProperty("OLLAMA_MXBAI_EMB_MODELNAME"))
+    public static OpenAiEmbeddingModel getEmbeddingModel() {
+        return OpenAiEmbeddingModel.builder()
+                                   .apiKey(System.getProperty("OPENAI_API_KEY"))
+                                   .modelName(OpenAiEmbeddingModelName.TEXT_EMBEDDING_3_LARGE)
+                                   .timeout(Duration.ofSeconds(30))
                                    .maxRetries(3)
                                    .logRequests(true)
                                    .logResponses(true)
                                    .build();
     }
 
-    public static EmbeddingStore<TextSegment> getEmbeddingStore(String collectionName, int dimension) {
-        return MilvusEmbeddingStore.builder()
-                                   .host(System.getProperty("MILVUS_HOST"))
-                                   .port(Integer.parseInt(System.getProperty("MILVUS_PORT")))
-                                   .databaseName("default")
+    public static ChromaEmbeddingStore getEmbeddingStore(String collectionName) {
+        return ChromaEmbeddingStore.builder()
+                                   .baseUrl(System.getProperty("CHROMA_URI"))
+                                   .timeout(Duration.ofSeconds(600))
                                    .collectionName(collectionName)
-                                   .dimension(dimension)
                                    .build();
     }
 
@@ -51,15 +51,18 @@ public class ingestManifestos extends AbstractStandaloneJnxApp {
     @Override
     @SuppressWarnings("unused")
     protected void _run(DominoClient dominoClient) {
-        Database database = dominoClient.openDatabase(System.getProperty("DEMO_DB_PATH"));
+        Database database = dominoClient.openDatabase("", "help/help14_client.nsf");
 
-        Set<Integer> manifestoDocIds = database.openCollection("Manifestos")
-                                               .orElseThrow()
-                                               .getAllIds(true, false);
+        // Decide what gets in...
+        Set<Integer> docIds = database.openCollection("(All)")
+                                      .orElseThrow()
+                                      .getAllIds(true, false);
 
+        // Prepare an embedding model
+        EmbeddingModel embeddingModel = getEmbeddingModel();
 
-        var embeddingModel = getEmbeddingModel();
-        var embeddingStore = getEmbeddingStore("manifestos_mxbai_chunk", embeddingModel.dimension());
+        // Prepare embedding store
+        EmbeddingStore<TextSegment> embeddingStore = getEmbeddingStore("noteshelp_openai_chunk");
 
         // Clear existing embeddings
         embeddingStore.removeAll();
@@ -72,24 +75,28 @@ public class ingestManifestos extends AbstractStandaloneJnxApp {
                                                                 .build();
 
         var metadataDef = MetadataDefinition.builder(MetadataDefinition.DEFAULT)
-                                            .addString("PartyName")
-                                            .addString("Country")
-                                            .addInteger("Year")
+                                            .addString("Subject")
                                             .build();
 
         List<Document> docs = DominoDocumentLoader.create(metadataDef)
                                                   .database(database)
-                                                  .noteIds(manifestoDocIds)
-                                                  .filePattern("*.pdf")
-                                                  .documentParser(new ApachePdfBoxDocumentParser())
+                                                  .noteIds(docIds)
+                                                  .fieldName("Subject")
+                                                  .fieldName("Body")
                                                   .loadDocuments();
 
         System.out.println("Ingesting set of " + docs.size() + " documents");
 
-        IngestionResult result = ingestor.ingest(docs);
+        AtomicInteger counter = new AtomicInteger(0);
 
-        System.out.println("All ingested" + (result.tokenUsage() == null ? "" : (" : " + result.tokenUsage() + " tokens used!")));
+        docs.parallelStream().forEach(doc -> {
+            ingestor.ingest(doc);
+            if (counter.incrementAndGet() % 100 == 0) {
+                System.out.println(counter.get() + " docs ingested...");
+            }
+        });
 
+        System.out.println("All ingested");
     }
 
 }

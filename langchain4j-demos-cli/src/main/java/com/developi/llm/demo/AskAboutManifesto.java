@@ -25,8 +25,8 @@ public class AskAboutManifesto {
         Utils.initDotenv();
 
         // Prepare an embedding model
-        var embeddingModel= ingestManifestos.getEmbeddingModel();
-        var embeddingStore = ingestManifestos.getEmbeddingStore("manifestos_mxbai_chunk", embeddingModel.dimension());
+        var embeddingModel= IngestManifestos.getEmbeddingModel();
+        var embeddingStore = IngestManifestos.getEmbeddingStore("manifestos_mxbai_chunk", embeddingModel.dimension());
 
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
                                                                           .embeddingStore(embeddingStore)

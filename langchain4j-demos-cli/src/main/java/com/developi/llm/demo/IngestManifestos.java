@@ -4,43 +4,43 @@ import com.developi.jnx.utils.AbstractStandaloneJnxApp;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
 import dev.langchain4j.data.document.Document;
+import dev.langchain4j.data.document.parser.apache.pdfbox.ApachePdfBoxDocumentParser;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
-import dev.langchain4j.model.openai.OpenAiEmbeddingModelName;
+import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
-import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
-import java.time.Duration;
+import dev.langchain4j.store.embedding.IngestionResult;
+import dev.langchain4j.store.embedding.milvus.MilvusEmbeddingStore;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.openntf.langchain4j.data.DominoDocumentLoader;
 import org.openntf.langchain4j.data.MetadataDefinition;
 
-public class ingestNotesHelp extends AbstractStandaloneJnxApp {
+public class IngestManifestos extends AbstractStandaloneJnxApp {
 
     public static void main(String[] args) {
-        new ingestNotesHelp().run(args);
+        new IngestManifestos().run(args);
     }
 
-    public static OpenAiEmbeddingModel getEmbeddingModel() {
-        return OpenAiEmbeddingModel.builder()
-                                   .apiKey(System.getProperty("OPENAI_API_KEY"))
-                                   .modelName(OpenAiEmbeddingModelName.TEXT_EMBEDDING_3_LARGE)
-                                   .timeout(Duration.ofSeconds(30))
+    public static EmbeddingModel getEmbeddingModel() {
+        return OllamaEmbeddingModel.builder()
+                                   .baseUrl(System.getProperty("OLLAMA_URI"))
+                                   .modelName(System.getProperty("OLLAMA_MXBAI_EMB_MODELNAME"))
                                    .maxRetries(3)
                                    .logRequests(true)
                                    .logResponses(true)
                                    .build();
     }
 
-    public static ChromaEmbeddingStore getEmbeddingStore(String collectionName) {
-        return ChromaEmbeddingStore.builder()
-                                   .baseUrl(System.getProperty("CHROMA_URI"))
-                                   .timeout(Duration.ofSeconds(600))
+    public static EmbeddingStore<TextSegment> getEmbeddingStore(String collectionName, int dimension) {
+        return MilvusEmbeddingStore.builder()
+                                   .host(System.getProperty("MILVUS_HOST"))
+                                   .port(Integer.parseInt(System.getProperty("MILVUS_PORT")))
+                                   .databaseName("default")
                                    .collectionName(collectionName)
+                                   .dimension(dimension)
                                    .build();
     }
 
@@ -51,18 +51,15 @@ public class ingestNotesHelp extends AbstractStandaloneJnxApp {
     @Override
     @SuppressWarnings("unused")
     protected void _run(DominoClient dominoClient) {
-        Database database = dominoClient.openDatabase("", "help/help14_client.nsf");
+        Database database = dominoClient.openDatabase(System.getProperty("DEMO_DB_PATH"));
 
-        // Decide what gets in...
-        Set<Integer> docIds = database.openCollection("(All)")
-                                      .orElseThrow()
-                                      .getAllIds(true, false);
+        Set<Integer> manifestoDocIds = database.openCollection("Manifestos")
+                                               .orElseThrow()
+                                               .getAllIds(true, false);
 
-        // Prepare an embedding model
-        EmbeddingModel embeddingModel = getEmbeddingModel();
 
-        // Prepare embedding store
-        EmbeddingStore<TextSegment> embeddingStore = getEmbeddingStore("noteshelp_openai_chunk");
+        var embeddingModel = getEmbeddingModel();
+        var embeddingStore = getEmbeddingStore("manifestos_mxbai_chunk", embeddingModel.dimension());
 
         // Clear existing embeddings
         embeddingStore.removeAll();
@@ -75,28 +72,24 @@ public class ingestNotesHelp extends AbstractStandaloneJnxApp {
                                                                 .build();
 
         var metadataDef = MetadataDefinition.builder(MetadataDefinition.DEFAULT)
-                                            .addString("Subject")
+                                            .addString("PartyName")
+                                            .addString("Country")
+                                            .addInteger("Year")
                                             .build();
 
         List<Document> docs = DominoDocumentLoader.create(metadataDef)
                                                   .database(database)
-                                                  .noteIds(docIds)
-                                                  .fieldName("Subject")
-                                                  .fieldName("Body")
+                                                  .noteIds(manifestoDocIds)
+                                                  .filePattern("*.pdf")
+                                                  .documentParser(new ApachePdfBoxDocumentParser())
                                                   .loadDocuments();
 
         System.out.println("Ingesting set of " + docs.size() + " documents");
 
-        AtomicInteger counter = new AtomicInteger(0);
+        IngestionResult result = ingestor.ingest(docs);
 
-        docs.parallelStream().forEach(doc -> {
-            ingestor.ingest(doc);
-            if (counter.incrementAndGet() % 100 == 0) {
-                System.out.println(counter.get() + " docs ingested...");
-            }
-        });
+        System.out.println("All ingested" + (result.tokenUsage() == null ? "" : (" : " + result.tokenUsage() + " tokens used!")));
 
-        System.out.println("All ingested");
     }
 
 }

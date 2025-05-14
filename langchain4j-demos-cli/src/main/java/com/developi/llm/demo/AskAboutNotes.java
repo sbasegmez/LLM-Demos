@@ -30,8 +30,8 @@ public class AskAboutNotes {
         Utils.initDotenv();
 
         // Prepare an embedding model
-        var embeddingModel = ingestNotesHelp.getEmbeddingModel();
-        var embeddingStore = ingestNotesHelp.getEmbeddingStore("noteshelp_openai_chunk");
+        var embeddingModel = IngestNotesHelp.getEmbeddingModel();
+        var embeddingStore = IngestNotesHelp.getEmbeddingStore("noteshelp_openai_chunk");
 
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
                                                                           .embeddingStore(embeddingStore)
