@@ -34,8 +34,8 @@ public class ModerationDemo {
 
         HelpfulAiService service = AiServices.builder(HelpfulAiService.class)
                                              .chatModel(OllamaChatModel.builder()
-                                                                       .baseUrl(DemoConstants.OLLAMA_URI)
-                                                                       .modelName(DemoConstants.OLLAMA_MODEL_NAME)
+                                                                       .baseUrl(System.getProperty("OLLAMA_URI"))
+                                                                       .modelName(System.getProperty("OLLAMA_CHAT_MODEL_NAME"))
                                                                        .temperature(0.1)
                                                                        .build())
                                              .moderationModel(moderationModel)

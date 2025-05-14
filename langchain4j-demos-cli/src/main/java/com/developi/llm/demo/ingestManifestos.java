@@ -9,8 +9,6 @@ import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
-import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
-import dev.langchain4j.model.openai.OpenAiEmbeddingModelName;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.IngestionResult;
@@ -26,6 +24,26 @@ public class ingestManifestos extends AbstractStandaloneJnxApp {
         new ingestManifestos().run(args);
     }
 
+    public static EmbeddingModel getEmbeddingModel() {
+        return OllamaEmbeddingModel.builder()
+                                   .baseUrl(System.getProperty("OLLAMA_URI"))
+                                   .modelName(System.getProperty("OLLAMA_MXBAI_EMB_MODELNAME"))
+                                   .maxRetries(3)
+                                   .logRequests(true)
+                                   .logResponses(true)
+                                   .build();
+    }
+
+    public static EmbeddingStore<TextSegment> getEmbeddingStore(String collectionName, int dimension) {
+        return MilvusEmbeddingStore.builder()
+                                   .host(System.getProperty("MILVUS_HOST"))
+                                   .port(Integer.parseInt(System.getProperty("MILVUS_PORT")))
+                                   .databaseName("default")
+                                   .collectionName(collectionName)
+                                   .dimension(dimension)
+                                   .build();
+    }
+
     @Override
     protected void _init() {
     }
@@ -33,37 +51,15 @@ public class ingestManifestos extends AbstractStandaloneJnxApp {
     @Override
     @SuppressWarnings("unused")
     protected void _run(DominoClient dominoClient) {
-        // Prepare an embedding model
-        EmbeddingModel embeddingModelOllama = OllamaEmbeddingModel.builder()
-                                                                  .baseUrl(DemoConstants.OLLAMA_URI)
-                                                                  .modelName(DemoConstants.OLLAMA_EMB_MODELNAME)
-                                                                  .maxRetries(3)
-                                                                  .logRequests(true)
-                                                                  .logResponses(true)
-                                                                  .build();
+        Database database = dominoClient.openDatabase(System.getProperty("DEMO_DB_PATH"));
 
-        EmbeddingModel embeddingModelOpenAi = OpenAiEmbeddingModel.builder()
-                                                                  .modelName(OpenAiEmbeddingModelName.TEXT_EMBEDDING_3_LARGE)
-                                                                  .apiKey(System.getProperty("OPENAI_API_KEY"))
-                                                                  .build();
+        Set<Integer> manifestoDocIds = database.openCollection("Manifestos")
+                                               .orElseThrow()
+                                               .getAllIds(true, false);
 
-//        Disabled tp prevent accidental run...
-//        submit(dominoClient, embeddingModelOllama, "projects_mxbai_nochunk");
-//        submit(dominoClient, embeddingModelOpenAi, "projects_openai_nochunk");
-        submit(dominoClient, embeddingModelOllama, "manifestos_mxbai_chunk");
-    }
 
-    public void submit(DominoClient dominoClient, EmbeddingModel embeddingModel, String collectionName) {
-        Database database = dominoClient.openDatabase(DemoConstants.DEMO_DB_PATH);
-
-        // Prepare embedding store
-        EmbeddingStore<TextSegment> embeddingStore = MilvusEmbeddingStore.builder()
-                                                                         .host(DemoConstants.MILVUS_HOST)
-                                                                         .port(DemoConstants.MILVUS_PORT)
-                                                                         .databaseName("default")
-                                                                         .collectionName(collectionName)
-                                                                         .dimension(embeddingModel.dimension())
-                                                                         .build();
+        var embeddingModel = getEmbeddingModel();
+        var embeddingStore = getEmbeddingStore("manifestos_mxbai_chunk", embeddingModel.dimension());
 
         // Clear existing embeddings
         embeddingStore.removeAll();
@@ -74,10 +70,6 @@ public class ingestManifestos extends AbstractStandaloneJnxApp {
                                                                 .embeddingStore(embeddingStore)
                                                                 .documentSplitter(DocumentSplitters.recursive(8196, 256))
                                                                 .build();
-
-        Set<Integer> manifestoDocIds = database.openCollection("Manifestos")
-                                               .orElseThrow()
-                                               .getAllIds(true, false);
 
         var metadataDef = MetadataDefinition.builder(MetadataDefinition.DEFAULT)
                                             .addString("PartyName")

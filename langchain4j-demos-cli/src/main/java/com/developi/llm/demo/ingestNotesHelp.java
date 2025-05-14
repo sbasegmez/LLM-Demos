@@ -7,7 +7,8 @@ import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
+import dev.langchain4j.model.openai.OpenAiEmbeddingModelName;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
@@ -24,6 +25,25 @@ public class ingestNotesHelp extends AbstractStandaloneJnxApp {
         new ingestNotesHelp().run(args);
     }
 
+    public static OpenAiEmbeddingModel getEmbeddingModel() {
+        return OpenAiEmbeddingModel.builder()
+                                   .apiKey(System.getProperty("OPENAI_API_KEY"))
+                                   .modelName(OpenAiEmbeddingModelName.TEXT_EMBEDDING_3_LARGE)
+                                   .timeout(Duration.ofSeconds(30))
+                                   .maxRetries(3)
+                                   .logRequests(true)
+                                   .logResponses(true)
+                                   .build();
+    }
+
+    public static ChromaEmbeddingStore getEmbeddingStore(String collectionName) {
+        return ChromaEmbeddingStore.builder()
+                                   .baseUrl(System.getProperty("CHROMA_URI"))
+                                   .timeout(Duration.ofSeconds(600))
+                                   .collectionName(collectionName)
+                                   .build();
+    }
+
     @Override
     protected void _init() {
     }
@@ -31,27 +51,18 @@ public class ingestNotesHelp extends AbstractStandaloneJnxApp {
     @Override
     @SuppressWarnings("unused")
     protected void _run(DominoClient dominoClient) {
-        // Prepare an embedding model
-        EmbeddingModel embeddingModelOllama = OllamaEmbeddingModel.builder()
-                                                                  .baseUrl(DemoConstants.OLLAMA_URI)
-                                                                  .modelName(DemoConstants.OLLAMA_SNOWFLAKE_EMB_MODELNAME)
-                                                                  .maxRetries(3)
-                                                                  .logRequests(true)
-                                                                  .logResponses(true)
-                                                                  .build();
-
-        submit(dominoClient, embeddingModelOllama, "client_help_snowflake_nochunk");
-    }
-
-    public void submit(DominoClient dominoClient, EmbeddingModel embeddingModel, String collectionName) {
         Database database = dominoClient.openDatabase("", "help/help14_client.nsf");
 
+        // Decide what gets in...
+        Set<Integer> docIds = database.openCollection("(All)")
+                                      .orElseThrow()
+                                      .getAllIds(true, false);
+
+        // Prepare an embedding model
+        EmbeddingModel embeddingModel = getEmbeddingModel();
+
         // Prepare embedding store
-        EmbeddingStore<TextSegment> embeddingStore = ChromaEmbeddingStore.builder()
-                                                                         .baseUrl(DemoConstants.CHROMA_URI)
-                                                                         .timeout(Duration.ofSeconds(600))
-                                                                         .collectionName(collectionName)
-                                                                         .build();
+        EmbeddingStore<TextSegment> embeddingStore = getEmbeddingStore("noteshelp_openai_chunk");
 
         // Clear existing embeddings
         embeddingStore.removeAll();
@@ -62,10 +73,6 @@ public class ingestNotesHelp extends AbstractStandaloneJnxApp {
                                                                 .embeddingStore(embeddingStore)
                                                                 .documentSplitter(DocumentSplitters.recursive(8196, 256))
                                                                 .build();
-
-        Set<Integer> docIds = database.openCollection("(All)")
-                                      .orElseThrow()
-                                      .getAllIds(true, false);
 
         var metadataDef = MetadataDefinition.builder(MetadataDefinition.DEFAULT)
                                             .addString("Subject")

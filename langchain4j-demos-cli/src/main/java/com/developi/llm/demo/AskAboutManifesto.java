@@ -1,9 +1,6 @@
 package com.developi.llm.demo;
 
 import com.developi.jnx.utils.Utils;
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.model.embedding.EmbeddingModel;
-import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModelName;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
@@ -11,8 +8,6 @@ import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
-import dev.langchain4j.store.embedding.EmbeddingStore;
-import dev.langchain4j.store.embedding.milvus.MilvusEmbeddingStore;
 
 public class AskAboutManifesto {
 
@@ -25,31 +20,17 @@ public class AskAboutManifesto {
 
     }
 
-
     public static void main(String[] args) {
         // Import env file
         Utils.initDotenv();
 
         // Prepare an embedding model
-        EmbeddingModel embeddingModelOllama = OllamaEmbeddingModel.builder()
-                                                                  .baseUrl(DemoConstants.OLLAMA_URI)
-                                                                  .modelName(DemoConstants.OLLAMA_EMB_MODELNAME)
-                                                                  .maxRetries(3)
-                                                                  .logRequests(true)
-                                                                  .logResponses(true)
-                                                                  .build();
-
-        EmbeddingStore<TextSegment> embeddingStore = MilvusEmbeddingStore.builder()
-                                                                         .host(DemoConstants.MILVUS_HOST)
-                                                                         .port(DemoConstants.MILVUS_PORT)
-                                                                         .databaseName("default")
-                                                                         .collectionName("manifestos_mxbai_chunk")
-                                                                         .dimension(embeddingModelOllama.dimension())
-                                                                         .build();
+        var embeddingModel= ingestManifestos.getEmbeddingModel();
+        var embeddingStore = ingestManifestos.getEmbeddingStore("manifestos_mxbai_chunk", embeddingModel.dimension());
 
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
                                                                           .embeddingStore(embeddingStore)
-                                                                          .embeddingModel(embeddingModelOllama)
+                                                                          .embeddingModel(embeddingModel)
                                                                           .maxResults(10)
                                                                           .minScore(0.75)
                                                                           .build();

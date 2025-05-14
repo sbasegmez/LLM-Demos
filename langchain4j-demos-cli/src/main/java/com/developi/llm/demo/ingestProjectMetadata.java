@@ -8,8 +8,6 @@ import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
-import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
-import dev.langchain4j.model.openai.OpenAiEmbeddingModelName;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.IngestionResult;
@@ -18,15 +16,31 @@ import java.util.List;
 import java.util.Set;
 import org.openntf.langchain4j.data.DominoDocumentLoader;
 import org.openntf.langchain4j.data.MetadataDefinition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ingestProjectMetadata extends AbstractStandaloneJnxApp {
 
-    private static final Logger log = LoggerFactory.getLogger(ingestProjectMetadata.class);
-
     public static void main(String[] args) {
         new ingestProjectMetadata().run(args);
+    }
+
+    public static EmbeddingModel getEmbeddingModel() {
+        return OllamaEmbeddingModel.builder()
+                                   .baseUrl(System.getProperty("OLLAMA_URI"))
+                                   .modelName(System.getProperty("OLLAMA_MXBAI_EMB_MODELNAME"))
+                                   .maxRetries(3)
+                                   .logRequests(true)
+                                   .logResponses(true)
+                                   .build();
+    }
+
+    public static EmbeddingStore<TextSegment> getEmbeddingStore(String collectionName, int dimension) {
+        return MilvusEmbeddingStore.builder()
+                                   .host(System.getProperty("MILVUS_HOST"))
+                                   .port(Integer.parseInt(System.getProperty("MILVUS_PORT")))
+                                   .databaseName("pmt")
+                                   .collectionName(collectionName)
+                                   .dimension(dimension)
+                                   .build();
     }
 
     @Override
@@ -36,37 +50,16 @@ public class ingestProjectMetadata extends AbstractStandaloneJnxApp {
     @Override
     @SuppressWarnings("unused")
     protected void _run(DominoClient dominoClient) {
-        // Prepare an embedding model
-        EmbeddingModel embeddingModelOllama = OllamaEmbeddingModel.builder()
-                                                                  .baseUrl(DemoConstants.OLLAMA_URI)
-                                                                  .modelName(DemoConstants.OLLAMA_EMB_MODELNAME)
-                                                                  .maxRetries(3)
-                                                                  .logRequests(true)
-                                                                  .logResponses(true)
-                                                                  .build();
+        // Pull relevant doc ids
+        Database database = dominoClient.openDatabase(System.getProperty("PMT_METADATA_PATH"));
 
-        EmbeddingModel embeddingModelOpenAi = OpenAiEmbeddingModel.builder()
-                                                                  .modelName(OpenAiEmbeddingModelName.TEXT_EMBEDDING_3_LARGE)
-                                                                  .apiKey(System.getProperty("OPENAI_API_KEY"))
-                                                                  .build();
+        Set<Integer> projectNoteIds = database.openCollection("projects")
+                                              .orElseThrow()
+                                              .getAllIds(true, false);
 
-//        Disabled tp prevent accidental run...
-//        submit(dominoClient, embeddingModelOllama, "projects_mxbai_nochunk");
-//        submit(dominoClient, embeddingModelOpenAi, "projects_openai_nochunk");
-        submit(dominoClient, embeddingModelOllama, "projects_mxbai_chunk");
-    }
 
-    public void submit(DominoClient dominoClient, EmbeddingModel embeddingModel, String collectionName) {
-        Database database = dominoClient.openDatabase(DemoConstants.PMT_METADATA_PATH);
-
-        // Prepare embedding store
-        EmbeddingStore<TextSegment> embeddingStore = MilvusEmbeddingStore.builder()
-                                                                         .host(DemoConstants.MILVUS_HOST)
-                                                                         .port(DemoConstants.MILVUS_PORT)
-                                                                         .databaseName("pmt")
-                                                                         .collectionName(collectionName)
-                                                                         .dimension(embeddingModel.dimension())
-                                                                         .build();
+        var embeddingModel = getEmbeddingModel();
+        var embeddingStore = getEmbeddingStore("projects_mxbai_chunk", embeddingModel.dimension());
 
         // Clear existing embeddings
         embeddingStore.removeAll();
@@ -77,10 +70,6 @@ public class ingestProjectMetadata extends AbstractStandaloneJnxApp {
                                                                 .embeddingStore(embeddingStore)
                                                                 .documentSplitter(DocumentSplitters.recursive(4000, 128))
                                                                 .build();
-
-        Set<Integer> projectNoteIds = database.openCollection("projects")
-                                              .orElseThrow()
-                                              .getAllIds(true, false);
 
         var metadataDef = MetadataDefinition.builder(MetadataDefinition.DEFAULT)
                                             .addString("name")

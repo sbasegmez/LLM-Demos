@@ -1,17 +1,9 @@
 package com.developi.llm.demo;
 
-import static dev.langchain4j.model.openai.OpenAiModerationModelName.TEXT_MODERATION_LATEST;
-
 import com.developi.jnx.utils.Utils;
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.input.PromptTemplate;
-import dev.langchain4j.model.ollama.OllamaEmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModelName;
-import dev.langchain4j.model.openai.OpenAiModerationModel;
-import dev.langchain4j.model.openai.OpenAiModerationModel.OpenAiModerationModelBuilder;
-import dev.langchain4j.model.openai.OpenAiModerationModelName;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
 import dev.langchain4j.rag.RetrievalAugmentor;
 import dev.langchain4j.rag.content.injector.DefaultContentInjector;
@@ -20,8 +12,6 @@ import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
-import dev.langchain4j.store.embedding.EmbeddingStore;
-import dev.langchain4j.store.embedding.chroma.ChromaEmbeddingStore;
 import java.util.List;
 
 public class AskAboutNotes {
@@ -40,25 +30,13 @@ public class AskAboutNotes {
         Utils.initDotenv();
 
         // Prepare an embedding model
-        EmbeddingModel embeddingModelOllama = OllamaEmbeddingModel.builder()
-                                                                  .baseUrl(DemoConstants.OLLAMA_URI)
-                                                                  .modelName(DemoConstants.OLLAMA_SNOWFLAKE_EMB_MODELNAME)
-                                                                  .maxRetries(3)
-                                                                  .logRequests(true)
-                                                                  .logResponses(true)
-                                                                  .build();
-
-        EmbeddingStore<TextSegment> embeddingStore = ChromaEmbeddingStore.builder()
-                                                                         .baseUrl(DemoConstants.CHROMA_URI)
-                                                                         .logRequests(true)
-                                                                         .logResponses(true)
-                                                                         .collectionName("client_help_snowflake_nochunk")
-                                                                         .build();
+        var embeddingModel = ingestNotesHelp.getEmbeddingModel();
+        var embeddingStore = ingestNotesHelp.getEmbeddingStore("noteshelp_openai_chunk");
 
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.builder()
                                                                           .embeddingStore(embeddingStore)
-                                                                          .embeddingModel(embeddingModelOllama)
-                                                                          .maxResults(10)
+                                                                          .embeddingModel(embeddingModel)
+                                                                          .maxResults(5)
                                                                           .minScore(0.75)
                                                                           .build();
 
