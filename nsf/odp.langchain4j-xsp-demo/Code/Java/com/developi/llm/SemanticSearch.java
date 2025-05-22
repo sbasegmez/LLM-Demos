@@ -5,8 +5,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.developi.utils.XspUtils;
-import com.developi.utils.jnx.DominoClientRunner;
+import org.openntf.misc.jnx.DominoClientRunner;
+import org.openntf.misc.utils.XspUtils;
+
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.FTQuery;

@@ -1,6 +1,6 @@
 ---
 class: 1
-flags: 0x0000
+flags: 0x0100
 unid: OF1CC060D9EA780BE9-ON00761F5200258BDA
 items:
   - name: Form

@@ -1,0 +1,23 @@
+---
+class: 4
+flags: 0x0000
+unid: OF11FFD0C1B2D7AEA7-ON0060163000258C42
+items:
+  - name: $DesignerVersion
+    type: text
+    data: 8.5.3
+  - name: $FileNames
+    type: text
+    data: org/openntf/langchain4j/app/Listeners.java
+    signed: true
+  - name: $Flags
+    type: text
+    data: "34567Cg~["
+  - name: $TITLE
+    type: text
+    data: org/openntf/langchain4j/app/Listeners.java
+  - name: $FileData
+    type: composite
+    signed: true
+    nonsummary: true
+remaining: []

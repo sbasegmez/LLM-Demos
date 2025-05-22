@@ -1,0 +1,334 @@
+---
+class: 8
+flags: 0x0000
+unid: OF9CCA58F667E4D486-ON007531B100258C89
+items:
+  - name: $Collation
+    type_num: 2
+    type: opaque
+    opaque: LQADAABECGYAAAACAIBmAAIACQCAZgALAAcAJDZDcmVhdGVkT25Qcm9ibGVt
+  - name: $Collection
+    type: object
+    obj_type: 0x0001
+    obj_class: 0x0008
+    obj_privs: 0x0000
+    opaque: |
+      zMxyA0BAAAABAEAAmAAAAAAAAAAXAAAAKgABAAAAAAAAAAAEAAAAAgAAAAA/PTgAjYwlwT89OACNjCXB
+      YWszAI2MJcH//wAA2A4LACaMJQAAAAAALwMAAAAAAABlbgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAPj04ALqMJcEAAAAArD8AAAEAAAAAAAAAAAAAAAAAAAAPADIADG4zAI2MJcEAAAAA
+      AAAAALQcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACYAAIAJAACACQ2AgAGAAAA
+      AAAAAAUACQBDcmVhdGVkQnkAtAIDAAUAQgA9AAcAAgAJAAgABwAJAAQABAAkNkNyZWF0ZWRPblNldmVy
+      aXR5UHJvYmxlbSRDb25mbGljdCRSRUYkQzEkAAQABAAAACIABQAEAEZvcm0BAA4ASGVscGRlc2tUaWNr
+      ZXQKAgMABwAKAAQACUwxUzAAAQAAAAAAAAAAAAAAAAAtAAMAAEQIZgAAAAACAIBmAAACAAkAgGYAAAsA
+      BwAkNkNyZWF0ZWRPblByb2JsZW0EAAAAAwABAEEAAAAAAAAAAAAC+ggAAMCYeSxiHmyHkQP5G7i/cSeL
+      PpjeAaeX8vIjpYjLJ40nUN/oXDMbMGLBzRFdd0BHhc5e719qCSDVmsyuBrC4t3D30xUpIN+sq+xfKizC
+      gPoQEAR9+Bl8STbn8tYlzTl4Izeb2fc2w+Ahchu434fvxtGa7W/6Hk2olaeMX90Pm8PFer2jz9+xneZa
+      NdStZo4SohQuCrKnmlWyqtwQVy2Pfc2hXCzVO+vh/z6/mhADkeAPxi9S3FUYua2hdjTCv6ffa7FQtRP7
+      E3THuoogUfC3zW8okGDREP2Q1p71pNjndLw4ekOb/VFfCBxudismGyabBmlCoGYelpugEb0UfZqiT5GF
+      PphCn6zgvrdxaM9kIe/uD/bzrj3AwT6nHM/RywD7hxNNOCvvVQqpRXJwRfqciLUMSHx7PGFyIFSP0QqY
+      Nb+UJExhpxAbI07mJcmIkvN7C2NTbDQsPae6ZwDyArQpfnf4n1yiD/AiyI4bcf5Q+YpCoLZ1JRx7unEG
+      MgNdbQtAYYNh1lsWLRAs1Ot0+XaDI6KkM0JqEWORigD6zcyV58uV3WkAtLJyydlr/W8ricro8zz9i9As
+      dKsGax4CZdQzDeCDiiUrFgmWINgTAhdAldD2ensD295pN2tUKeI2W9lUhoP7qGHLuCo8r5ioz06lRQZX
+      xKoySrLWFHPXT9BaPzWdriD0Z1bxSI8cZbC3zHhvV2KASDE3M04AqQ8wDWPr8e3mL9D4rYdqqzaWLrh8
+      onVTsA==
+  - name: $Comment
+    type: text
+    data: ""
+    signed: true
+  - name: $DesignerVersion
+    type: text
+    data: 8.5.3
+  - name: $Flags
+    type: text
+    data: Y
+  - name: $Fonts
+    type: text
+    data:
+      - "5"
+      - "38"
+      - Arial
+      - "6"
+      - "38"
+      - Arial
+      - "7"
+      - "38"
+      - Arial
+      - "8"
+      - "38"
+      - Arial
+      - "9"
+      - "38"
+      - Arial
+      - "10"
+      - "38"
+      - Arial
+      - "11"
+      - "38"
+      - Arial
+      - "12"
+      - "38"
+      - Arial
+    signed: true
+  - name: $FormatNote
+    type: noteref
+    data:
+      - OFB84E2E99F628B190-ON0061C39B00258AEC
+    signed: true
+  - name: $Formula
+    type: formula
+    data: " Form=\"HelpdeskTicket\""
+    opaque: |
+      kgACACQAAgAkNgIABgAAAAAAAAAFAAkAQ3JlYXRlZEJ5ALQCAwAFADwANwAGAAIACQAIAAcACQAEACQ2
+      Q3JlYXRlZE9uU2V2ZXJpdHlQcm9ibGVtJENvbmZsaWN0JFJFRgAEAAQAAAAiAAUABABGb3JtAQAOAEhl
+      bHBkZXNrVGlja2V0CgIDAAcACgAEAAlMMVM=
+    signed: true
+  - name: $FormulaClass
+    type: text
+    data: "1"
+    signed: true
+  - name: $Index
+    type: text
+    data: ""
+    signed: true
+  - name: $TITLE
+    type: text
+    data: HelpdeskTickets
+    signed: true
+  - name: $ViewFormat
+    type_num: 5
+    type: opaque
+    opaque: |
+      AQAEAAcAiEQAAVZDAQQCAAkAMAAAAFQABQAACgABAAAAAAAAAAICAAAAVkMBAAkACQAAAAAAQQAGAAAK
+      AAAAAAAAAgEAAgIAAABWQwAACAAIAAAAAABBAAcBCAoAAAAAAAAAAAACAgAAAFZDAQAHAAcAAAAAAG0A
+      CAAACgAAAAAAAAAAAAICAAAAJDZDcmVhdGVkQnkwAAIAJAACACQ2AgAGAAAAAAAAAAUACQBDcmVhdGVk
+      QnkAtAIDAAcACgADAAk0UwBDcmVhdGVkT25DcmVhdGVkT25TZXZlcml0eVNldmVyaXR5UHJvYmxlbVBy
+      b2JsZW0mAAEAAAABAQAJAQAACgEBAAoAAAEArSsBAj8AAQAAAAAAAAAAAFdDCQDfCQAAAAAAAAAAAAAA
+      AAAAAAAAABAIAAAyAP//AAAAAAAAAAAAAAAAAABXQwoA3wkAAAAAAAAAAAAAAAAAAAAAAADEAAAAAAD/
+      /wAAAAAAAAAAAAAAAAAAV0MLAN8JAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAA//8AAAAAAAAAAAAAAAAA
+      AFdDDADfCQAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAP//AAAAAAAAAAAAAAAAAABCAJEAAAABAO/v7wAB
+      AP///wABAMbGxgAAAAAAAAAAAAEA////AAEA5ubmAAAAAQAAZrAAAQAAZrAAAQAAAAAAAAD2/zIAAAAA
+      AAMAEwAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAdmlldy9jaGV2cm9uLnBuZwgAAAAAAAEAWEMATIADAAAA
+      AAABAgICAQEBAQYEAgAAAAAAAAAAIC8vOllDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+      AAAAAAAAAAAAAAAAAAAAAABgQxwAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    signed: true
+  - name: $V5ACTIONS
+    type: composite
+    signed: true
+    nonsummary: true
+    data:
+      - type: 0xff8b
+        opaque: i/8oAAEABSZBcmlhbAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+      - type: 0x00bd
+        BackColor: 47
+        BorderStyle: 0
+        BorderWidth: 0
+        BtnHeight: 29
+        FontID: 0x0adf0005
+        HeightSpc: 29
+        LineColor: 0
+        LineStyle: 1
+        ShareID: 0x00000000
+        dwFlags: 0x00021b01
+      - type: 0xff79
+        BackColor:
+          Flags: 0x0001
+          rgb: 0xf7f7f7
+        BtnBorderDisplay: 0
+        BtnTextJustify: 0
+        BtnWidthStyle: 1
+        ButtonColor:
+          Flags: 0x0001
+          rgb: 0xf7f7f7
+        FontColor:
+          Flags: 0x0001
+          rgb: 0x262626
+        LineColor:
+          Flags: 0x0001
+          rgb: 0x000000
+        Spare:
+          - 0x00000000
+          - 0x00000000
+          - 0x00000000
+          - 0x00000000
+          - 0x00000000
+          - 0x00000000
+          - 0x00000000
+          - 0x00000000
+          - 0x00000000
+          - 0x00000000
+          - 0x00000000
+        barFontID: 0x09000005
+        barHeight:
+          Flags: 0x0000
+          Length:
+            - 0
+            - 0
+            - 0
+            - 0
+            - 0
+            - 0
+            - 0
+            - 0
+          Reserved: 0
+          Units: 0
+        dwFlags: 0x00000003
+        wAppletHeight: 33
+        wBarBackgroundRepeat: 0
+        wBtnInternalMargin: 4
+        wBtnWidthAbsolute: 0
+        wSpare: 0x0000
+        wThemeSetting: 0
+      - type: 0xfffc
+        BorderFlags: 0
+        BorderStyle: 1
+        BorderWidthBottom: 2
+        BorderWidthLeft: 0
+        BorderWidthRight: 0
+        BorderWidthTop: 0
+        Color:
+          Flags: 0x0001
+          rgb: 0xc6c6c6
+        DropShadowWidth: 0
+        Flags: 0x00000000
+        InnerWidthBottom: 0
+        InnerWidthLeft: 0
+        InnerWidthRight: 0
+        InnerWidthTop: 0
+        OuterWidthBottom: 0
+        OuterWidthLeft: 0
+        OuterWidthRight: 0
+        OuterWidthTop: 0
+        dwSpare: 0x00000000
+        wSpares:
+          - 0x0000
+          - 0x0000
+          - 0x0000
+          - 0x0000
+          - 0x0000
+      - type: 0xffbe
+        Flags: 0x0000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 5
+        opaque: AQBOfA==
+        title: Categori_ze
+      - type: 0xffbe
+        Flags: 0x0000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 5
+        opaque: AgACCg==
+        title: _Edit Document
+      - type: 0xffbe
+        Flags: 0x0000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 5
+        opaque: AwADCg==
+        title: _Send Document
+      - type: 0xffbe
+        Flags: 0x0000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 5
+        opaque: BAAECg==
+        title: _Forward
+      - type: 0xffbe
+        Flags: 0x0000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 5
+        opaque: BQA9fA==
+        title: _Move To Folder...
+      - type: 0xffbe
+        Flags: 0x0000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 5
+        opaque: BgA+fA==
+        title: _Remove From Folder
+      - type: 0xffbe
+        Flags: 0x4000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 4
+        opaque: BwBefA==
+        title: _Read
+      - type: 0xffbe
+        Flags: 0x4000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 4
+        opaque: CABufA==
+        title: _Unread
+      - type: 0xffbe
+        Flags: 0x4000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 4
+        opaque: CQB+fA==
+        title: _Open in New Window
+      - type: 0xffbe
+        Flags: 0x4000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 4
+        opaque: CgCOfA==
+        title: _Print...
+      - type: 0xffbe
+        Flags: 0x4000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 4
+        opaque: CwCefA==
+        title: _Delete
+      - type: 0xffbe
+        Flags: 0x4000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 4
+        opaque: DACufA==
+        title: _Document Properties
+      - type: 0xffbe
+        Flags: 0x4000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 4
+        opaque: DQC+fA==
+        title: C_ut
+      - type: 0xffbe
+        Flags: 0x4000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 4
+        opaque: DgDOfA==
+        title: _Copy
+      - type: 0xffbe
+        Flags: 0x4000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 4
+        opaque: DwDefA==
+        title: Copy as Document _Link
+      - type: 0xffbe
+        Flags: 0x4000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 4
+        opaque: EADufA==
+        title: Copy as _Table
+      - type: 0xffbe
+        Flags: 0x4000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 4
+        opaque: EQD+fA==
+        title: P_aste
+      - type: 0xffbe
+        Flags: 0x4000019d
+        IconIndex: 0
+        ShareId: 0
+        Type: 4
+        opaque: EgAOfQ==
+        title: _Open
+remaining: []

@@ -1,0 +1,23 @@
+---
+class: 4
+flags: 0x0000
+unid: OF0EF31DA91D65104D-ON006070DD00258C42
+items:
+  - name: $DesignerVersion
+    type: text
+    data: 8.5.3
+  - name: $FileNames
+    type: text
+    data: org/openntf/misc/utils/XspUtils.java
+    signed: true
+  - name: $Flags
+    type: text
+    data: "34567Cg~["
+  - name: $TITLE
+    type: text
+    data: org/openntf/misc/utils/XspUtils.java
+  - name: $FileData
+    type: composite
+    signed: true
+    nonsummary: true
+remaining: []

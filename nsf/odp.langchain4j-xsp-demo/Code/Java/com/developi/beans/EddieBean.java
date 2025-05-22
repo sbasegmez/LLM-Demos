@@ -1,16 +1,16 @@
 package com.developi.beans;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.openntf.domino.Database;
-import org.openntf.domino.Session;
+import org.openntf.misc.collections.AbstractTimedMap;
+import org.openntf.misc.utils.XspUtils;
 
-import com.developi.utils.XspUtils;
-import com.developi.utils.collections.AbstractTimedMap;
+import com.ibm.xsp.extlib.util.ExtLibUtil;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import lotus.domino.NotesException;
 
 /**
  * Eddie is the all-knowing semi-intelligent orchestrator of everything related to the application (see Hitchhiker's Guide for reference). 
@@ -30,14 +30,6 @@ public class EddieBean extends AbstractTimedMap {
 	private String baseUrl;
 	private String themeUrl = "/dpg-theme";
 	
-	@Inject
-	@Named("odaSession")
-	private Session session;
-	
-	@Inject
-	@Named("odaAppDb")
-	private Database appDb;
-
 	@Inject
 	@ConfigProperty(name = "dsg.refreshEddie.mins", defaultValue="60")
 	private long refreshIntervalMins;
@@ -76,7 +68,11 @@ public class EddieBean extends AbstractTimedMap {
 	}
 
 	public boolean isFtIndexed() {
-		return appDb.isFTIndexed();
+		try {
+			return ExtLibUtil.getCurrentDatabase().isFTIndexed();
+		} catch (NotesException e) {
+			return false;
+		}
 	}
 
 	public String getLogoutLink() {

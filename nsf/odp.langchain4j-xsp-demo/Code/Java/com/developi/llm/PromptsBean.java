@@ -23,7 +23,7 @@ public class PromptsBean {
 	public SentimentServiceFewShots getSentimentServiceFewShots() {
 		if (sentimentServiceFewShots == null) {
 			this.sentimentServiceFewShots = AiServices	.builder(SentimentServiceFewShots.class)
-														.chatLanguageModel(chatterService.getChatModel())
+														.chatModel(chatterService.getChatModel())
 														.build();
 		}
 

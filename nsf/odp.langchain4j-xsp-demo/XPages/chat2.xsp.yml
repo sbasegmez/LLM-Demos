@@ -1,0 +1,45 @@
+---
+class: 4
+flags: 0x0000
+unid: OF5BBDAEEC95870B31-ON00457CB700258C8A
+items:
+  - name: $ClassSize2
+    type: number
+    data: 586
+    signed: true
+  - name: $DesignerVersion
+    type: text
+    data: "8.5"
+  - name: $FileNames
+    type: text
+    data: chat_1.xsp
+    signed: true
+  - name: $Flags
+    type: text
+    data: gC~4K
+  - name: $TITLE
+    type: text
+    data: chat2.xsp
+    signed: true
+  - name: $ClassData2
+    signed: true
+    nonsummary: true
+    type: opaque
+    type_num: 1
+    opaque: |
+      YQAYAAAAAABKAgAAAQAAAAAAAAAAAAAAYABcAgAASgJKAgAAAAAAAAAAyv66vgAAAD0AHgcAAgEACXhz
+      cC9DaGF0MgcABAEAOGNvbS9pYm0veHNwL3BhZ2UvY29tcGlsZWQvQWJzdHJhY3RDb21waWxlZFBhZ2VE
+      aXNwYXRjaGVyAQAGPGluaXQ+AQADKClWAQAEQ29kZQgACQEAAzMuMAoAAwALDAAFAAwBABUoTGphdmEv
+      bGFuZy9TdHJpbmc7KVYBAA9MaW5lTnVtYmVyVGFibGUBABJMb2NhbFZhcmlhYmxlVGFibGUBAAR0aGlz
+      AQALTHhzcC9DaGF0MjsBAApjcmVhdGVQYWdlAQAzKEkpTGNvbS9pYm0veHNwL3BhZ2UvY29tcGlsZWQv
+      QWJzdHJhY3RDb21waWxlZFBhZ2U7BwAUAQATeHNwL0NoYXQyJENoYXQyUGFnZQoAEwAWDAAFAAYBAAlw
+      YWdlSW5kZXgBAAFJAQAKU291cmNlRmlsZQEACkNoYXQyLmphdmEBAAxJbm5lckNsYXNzZXMBAAlDaGF0
+      MlBhZ2UBAAtOZXN0TWVtYmVycwAhAAEAAwAAAAAAAgABAAUABgABAAcAAAA1AAIAAQAAAAcqEgi3AAqx
+      AAAAAgANAAAACgACAAAAGAAGABkADgAAAAwAAQAAAAcADwAQAAAABAARABIAAQAHAAAAPAACAAIAAAAI
+      uwATWbcAFbAAAAACAA0AAAAGAAEAAAAcAA4AAAAWAAIAAAAIAA8AEAAAAAAACAAXABgAAQADABkAAAAC
+      ABoAGwAAAAoAAQATAAEAHAAJAB0AAAAEAAEAEw==
+  - name: $FileData
+    type: composite
+    signed: true
+    nonsummary: true
+remaining: []

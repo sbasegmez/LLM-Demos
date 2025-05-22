@@ -17,6 +17,10 @@
 	</xp:link>
 
 	<xp:link escape="true" text="Demo3 : Helpful Assistant" id="link3"
-		styleClass="h3 d-block" value="/chat.xsp">
+		styleClass="h3 d-block" value="/chat1.xsp">
+	</xp:link>
+
+	<xp:link escape="true" text="Demo4 : Helpdesk Assistant" id="link4"
+		styleClass="h3 d-block" value="/chat2.xsp">
 	</xp:link>
 </xp:view>
